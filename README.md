@@ -21,3 +21,10 @@ VK Moosic Player Console - это консольное приложение дл
 - [VK-Moosic-Player-Ubuntu ](https://github.com/sidenevkirill/VK-Moosic-Player-Ubuntu) - для Linux
 - [VK-Moosic-Player-Console](https://github.com/sidenevkirill/VK-Moosic-Player-Console) - для Console
 - [VK-Moosic-Player-Android](https://github.com/sidenevkirill/VK-Moosic-Player-Android) - для Android
+
+## ❤️ Поддержать проект
+
+Если вам нравится этот проект и он оказался вам полезен, вы можете поддержать его развитие.
+
+[<img src="https://cdn.qiwi.com/static/logo/images/qiwi_com_ru.svg" width="200"/>](https://qiwi.com/n/DAILYDRINK)
+[<img src="https://yastatic.net/s3/lpc/1e495c9e-6b2b-42a9-870e-7a2a0034e87a/yandex-pay.svg" width="200"/>](https://tips.yandex.ru/guest/payment/3657677)
