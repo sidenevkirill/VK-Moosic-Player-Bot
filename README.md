@@ -26,5 +26,4 @@ VK Moosic Player Console - это консольное приложение дл
 
 Если вам нравится этот проект и он оказался вам полезен, вы можете поддержать его развитие.
 
-[<img src="https://cdn.qiwi.com/static/logo/images/qiwi_com_ru.svg" width="200"/>](https://qiwi.com/n/DAILYDRINK)
-[<img src="https://yastatic.net/s3/lpc/1e495c9e-6b2b-42a9-870e-7a2a0034e87a/yandex-pay.svg" width="200"/>](https://tips.yandex.ru/guest/payment/3657677)
+[<img src="https://sun9-48.vkuserphoto.ru/s/v1/ig2/bv4kILzPY57OYjRMIdR0lrE5YdwvAgcbOgcG_oG0lfYtKRMnsnEznCfEjr2GGYV6oUR8PjpoDK1N8o__MEjZqnkx.jpg?quality=95&as=32x34,48x50,72x76,108x113,160x168,240x252,360x378,480x504,540x567,640x673,720x757,1080x1135&from=bu&cs=1080x0" width="200"/>](https://tips.yandex.ru/guest/payment/3657677)
