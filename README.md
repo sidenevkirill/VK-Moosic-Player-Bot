@@ -1,6 +1,6 @@
 # VK-Moosic-Player-Bot
 
-Transfer of music from VK to TG
+[VK-Moosic-Player-Bot](https://t.me/vkmp_bot) - Transfer of music from VK to TG
 
 <img src="https://raw.githubusercontent.com/sidenevkirill/Sidenevkirill.github.io/bfb3ceaa21116b2b4d5dd05074235a4c676d2e55/img/2025-12-04_17-03-48.png" alt="Screenshot 1" height="700">
 
