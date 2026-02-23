@@ -17,10 +17,16 @@ VK Moosic Player Console - это консольное приложение дл
 - 📻 **Рекомендации** - персонализированные рекомендации
 
 ### 📱 Другие проекты
+
 - [VK-Moosic-Player-Windows](https://github.com/sidenevkirill/VK-Moosic-Player-Destkop) - для Windows
 - [VK-Moosic-Player-Ubuntu ](https://github.com/sidenevkirill/VK-Moosic-Player-Ubuntu) - для Linux
 - [VK-Moosic-Player-Console](https://github.com/sidenevkirill/VK-Moosic-Player-Console) - для Console
 - [VK-Moosic-Player-Android](https://github.com/sidenevkirill/VKMPAndroid) - для Android
+
+### Запуск
+
+source venv/bin/activate
+python main.py
 
 ## ❤️ Поддержать проект
 
