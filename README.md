@@ -26,6 +26,7 @@ VK Moosic Player Console - это консольное приложение дл
 ### Запуск
 
 source venv/bin/activate
+
 python main.py
 
 ## ❤️ Поддержать проект
