@@ -1,4 +1,3 @@
-# vk_manager.py
 import os
 import requests
 import random
@@ -334,18 +333,159 @@ class VKMusicManager:
         except Exception as e:
             return {"success": False, "error": f"Ошибка запроса: {e}"}
 
-    def search_audio(self, query):
-        """Поиск музыки"""
+    def search_audio(self, query, use_fallback=True):
+        """Поиск музыки с fallback методами"""
         if not self.token:
             return {"success": False, "error": "Токен не установлен"}
         
+        # Основной метод поиска
         url = "https://api.vk.com/method/audio.search"
         params = {
             "access_token": self.token,
             "v": VK_API_VERSION,
             "q": query,
             "count": 50,
-            "auto_complete": 1
+            "auto_complete": 1,
+            "sort": 2
+        }
+        
+        try:
+            response = requests.get(url, params=params, headers=self.headers)
+            data = response.json()
+            
+            logger.info(f"Поиск запроса '{query}': статус {response.status_code}")
+            
+            if "response" in data:
+                items = data["response"].get("items", [])
+                return {
+                    "success": True, 
+                    "results": items,
+                    "total_count": data["response"].get("count", len(items)),
+                    "method": "direct_search"
+                }
+            else:
+                error_code = data.get("error", {}).get("error_code", 0)
+                error_msg = data.get("error", {}).get("error_msg", "Неизвестная ошибка")
+                
+                logger.warning(f"Ошибка поиска (код {error_code}): {error_msg}")
+                
+                # Если ошибка связана с правами доступа и разрешено использовать fallback
+                if error_code == 15 or any(keyword in error_msg.lower() for keyword in ['access_token', 'invalid', 'permission', 'authorization']):
+                    if use_fallback:
+                        logger.warning("Использую fallback метод поиска")
+                        return self.search_audio_fallback(query)
+                    else:
+                        return {
+                            "success": False, 
+                            "error": f"Поиск недоступен: {error_msg}",
+                            "error_code": error_code,
+                            "solution": "Получите новый токен с правами 'audio'"
+                        }
+                else:
+                    return {
+                        "success": False, 
+                        "error": error_msg,
+                        "error_code": error_code
+                    }
+                    
+        except Exception as e:
+            logger.error(f"Исключение при поиске: {e}")
+            if use_fallback:
+                return self.search_audio_fallback(query)
+            else:
+                return {"success": False, "error": f"Ошибка запроса: {e}"}
+
+    def search_audio_fallback(self, query):
+        """Альтернативный поиск музыки через другие методы"""
+        logger.info(f"Fallback поиск: {query}")
+        
+        # Сначала попробуем получить популярную музыку по запросу
+        popular_result = self._search_via_popular(query)
+        if popular_result["success"] and popular_result["results"]:
+            return popular_result
+        
+        # Если не получилось, используем рекомендации
+        return self._search_via_recommendations(query)
+
+    def _search_via_popular(self, query):
+        """Поиск через популярную музыку"""
+        try:
+            url = "https://api.vk.com/method/audio.search"
+            params = {
+                "access_token": self.token,
+                "v": VK_API_VERSION,
+                "q": query,
+                "count": 30,
+                "auto_complete": 0,
+                "sort": 0  # Сортировка по популярности
+            }
+            
+            response = requests.get(url, params=params, headers=self.headers)
+            data = response.json()
+            
+            if "response" in data and data["response"]["items"]:
+                return {
+                    "success": True,
+                    "results": data["response"]["items"],
+                    "total_count": len(data["response"]["items"]),
+                    "method": "fallback_popular"
+                }
+        except Exception as e:
+            logger.debug(f"Ошибка в fallback популярном поиске: {e}")
+        
+        return {"success": False, "results": []}
+
+    def _search_via_recommendations(self, query):
+        """Поиск через фильтрацию рекомендаций"""
+        # Получаем рекомендации
+        result = self.get_recommendations()
+        if not result["success"]:
+            return result
+        
+        audio_list = result.get("audio_list", [])
+        if not audio_list:
+            return {"success": False, "error": "Нет данных для поиска"}
+        
+        # Фильтруем по запросу
+        query_lower = query.lower()
+        filtered_results = []
+        
+        for track in audio_list:
+            artist = track.get('artist', '').lower()
+            title = track.get('title', '').lower()
+            
+            if query_lower in artist or query_lower in title:
+                filtered_results.append(track)
+        
+        if filtered_results:
+            return {
+                "success": True,
+                "results": filtered_results[:30],
+                "total_count": len(filtered_results),
+                "method": "fallback_filtered",
+                "note": "Использован фильтр рекомендаций"
+            }
+        
+        # Если ничего не найдено, вернем просто рекомендации
+        return {
+            "success": True,
+            "results": audio_list[:30],
+            "total_count": len(audio_list),
+            "method": "fallback_recommendations",
+            "note": f"Показаны рекомендации (запрос '{query}' не найден)"
+        }
+
+    def check_token_permissions(self):
+        """Проверить разрешения токена"""
+        if not self.token:
+            return {"success": False, "error": "Токен не установлен"}
+        
+        # Проверяем через метод users.get с дополнительными полями
+        url = "https://api.vk.com/method/users.get"
+        params = {
+            "access_token": self.token,
+            "v": VK_API_VERSION,
+            "fields": "can_access_audio,can_see_audio"
         }
         
         try:
@@ -353,17 +493,43 @@ class VKMusicManager:
             data = response.json()
             
             if "response" in data:
+                user_info = data["response"][0]
+                has_audio_access = user_info.get('can_access_audio', 0) == 1
+                can_see_audio = user_info.get('can_see_audio', 0) == 1
+                
+                # Тестовый запрос для проверки прав на поиск
+                test_search = self.search_audio("test", use_fallback=False)
+                search_available = test_search["success"]
+                
                 return {
-                    "success": True, 
-                    "results": data["response"]["items"],
-                    "total_count": data["response"]["count"]
+                    "success": True,
+                    "permissions": {
+                        "has_audio_access": has_audio_access,
+                        "can_see_audio": can_see_audio,
+                        "search_available": search_available
+                    },
+                    "user_info": user_info
                 }
             else:
-                error_msg = data.get("error", {}).get("error_msg", "Неизвестная ошибка")
-                return {"success": False, "error": error_msg}
+                return {"success": False, "error": "Не удалось проверить разрешения"}
                 
         except Exception as e:
             return {"success": False, "error": f"Ошибка запроса: {e}"}
+
+    def get_music_by_mood(self, mood="happy"):
+        """Получить музыку по настроению"""
+        mood_queries = {
+            "happy": ["веселая музыка", "позитив", "танцевальная музыка", "летние хиты"],
+            "sad": ["грустная музыка", "лирика", "меланхолия", "осенняя музыка"],
+            "calm": ["спокойная музыка", "релакс", "инструментал", "лофи"],
+            "energetic": ["энергичная музыка", "тренировка", "спорт", "драйв"],
+            "romantic": ["романтическая музыка", "любовь", "нежная музыка"]
+        }
+        
+        queries = mood_queries.get(mood.lower(), ["популярная музыка"])
+        query = random.choice(queries)
+        
+        return self.search_audio(query)
 
     def download_audio(self, audio_url, filename):
         """Скачать аудиозапись"""
@@ -373,12 +539,22 @@ class VKMusicManager:
                 'Referer': 'https://vk.com/',
                 'Origin': 'https://vk.com'
             })
-            response = requests.get(audio_url, stream=True, headers=headers)
+            
+            response = requests.get(audio_url, stream=True, headers=headers, 
+                                 timeout=(10, 30))
+            
             if response.status_code == 200:
                 with open(filename, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
+                        if chunk:
+                            f.write(chunk)
+                logger.info(f"Аудио успешно скачано: {filename}")
                 return True
+            else:
+                logger.error(f"Ошибка скачивания: статус {response.status_code}")
+                return False
+        except requests.exceptions.Timeout:
+            logger.error("Таймаут при скачивании аудио")
             return False
         except Exception as e:
             logger.error(f"Ошибка при скачивании: {e}")
