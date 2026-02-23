@@ -1,0 +1,46 @@
+{
+  "users": {
+    "7708249698": {
+      "subscription_until": "2026-01-08T14:30:00",
+      "active": false,
+      "notified_24h": false,
+      "notified_2h": false
+    },
+    "6344982306": {
+      "subscription_until": "2026-12-25T10:15:00",
+      "active": true,
+      "notified_24h": false,
+      "notified_2h": false
+    }
+  },
+  "prices": {
+    "stars": {
+      "1_month": 100,
+      "3_months": 250,
+      "6_months": 450,
+      "1_year": 800
+    },
+    "bank": {
+      "1_month": 49,
+      "3_months": 99,
+      "6_months": 199,
+      "1_year": 299
+    }
+  },
+  "bank_details": {
+    "card": "2204 3210 6656 3560",
+    "bank": "Озон Банк",
+    "recipient": "Наталья С"
+  },
+  "pending_payments": {},
+  "subscription_durations": {
+    "1_month": 30,
+    "3_months": 90,
+    "6_months": 180,
+    "1_year": 365
+  },
+  "admin_id": [
+    7708249698,
+    6344982306
+  ]
+}
